@@ -4,6 +4,7 @@ class SubCategoriesController < ApplicationController
   def index
     @category = Category.find_by_id(params[:category_id])
     @sub_categories = SubCategory.where(:category_id => params[:category_id])
+
     respond_to do |format|
       format.html # index.html.erb
       format.xml  { render :xml => @sub_categories }
@@ -24,10 +25,9 @@ class SubCategoriesController < ApplicationController
   # GET /sub_categories/new
   # GET /sub_categories/new.xml
   def new
-    logger.info"%%%%%%%%%%%%%%%%%%%%%%%%%%%%#{params}"
     @category = Category.find_by_id(params[:category_id])
-    @sub_category = SubCategory.new
-
+    @sub_category = SubCategory.new(:category_id => params[:category_id])
+   
     respond_to do |format|
       format.html # new.html.erb
       format.xml  { render :xml => @sub_category }
@@ -43,13 +43,13 @@ class SubCategoriesController < ApplicationController
   # POST /sub_categories.xml
   def create
     @sub_category = SubCategory.new(params[:sub_category].merge(:category_id => params[:category_id]))
-
+        
     respond_to do |format|
       if @sub_category.save
         format.html { redirect_to(@sub_category, :notice => 'Sub category was successfully created.') }
         format.xml  { render :xml => @sub_category, :status => :created, :location => @sub_category }
       else
-        format.html { render :action => "new" }
+        format.html { redirect_to new_sub_category_path(:category_id => @sub_category.category_id) }
         format.xml  { render :xml => @sub_category.errors, :status => :unprocessable_entity }
       end
     end
@@ -75,10 +75,10 @@ class SubCategoriesController < ApplicationController
   # DELETE /sub_categories/1.xml
   def destroy
     @sub_category = SubCategory.find(params[:id])
-    @sub_category.destroy
+      @sub_category.destroy
 
     respond_to do |format|
-      format.html { redirect_to(sub_categories_url) }
+      format.html { redirect_to sub_categories_path(:category_id => @sub_category.category_id) }
       format.xml  { head :ok }
     end
   end
